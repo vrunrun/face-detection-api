@@ -1,12 +1,14 @@
 version: "3.7"
 
 services:
+  # Backend API
   smart-brain-api:
     container_name: backend
-    # image: node:dubnium-buster
     build: ./
     command: npm start
     working_dir: /usr/src/smart-brain-api
+    environment:
+      POSTGRES_URI: postgres://sally:secret@postgres:5432/smart-brain-docker
     networks:
       static-network:
         ipv4_address: 172.20.128.2
@@ -15,10 +17,22 @@ services:
     volumes:
       - ./:/usr/src/smart-brain-api
 
+  # Postgres
+  postgres:
+    environment:
+      POSTGRES_USER: sally
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: smart-brain-docker
+      POSTGRES_HOST: postgres
+    build: ./postgres
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.10
+    ports:
+      - "5432"
+
 networks:
   static-network:
     ipam:
       config:
         - subnet: 172.20.0.0/16
-          #docker-compose v3+ do not use ip_range
-          #ip_range: 172.28.5.0/24
